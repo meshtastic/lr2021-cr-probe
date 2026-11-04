@@ -1,0 +1,38 @@
+x04 preamble=8 power=10 dBm
+# chip firmware major=0x01 minor=0x1# B1 cr=0x09 x1 rc=0  (one 0x09 frame: correct 0x09, accumulating 0x0D)
+TX B1 F01 CR09   rc=0
+# B2 cr=0x04 x10 rc=0  (back to configured: correct 0x04, accumulating 0x0D)
+TX B2 F01 CR04   rc=0
+TX B2 F02 CR04   rc=0
+TX B2 F03 CR04   rc=0
+
+# LR2021 CR probe, role=TX
+# freq=915000 kHz SF7 BW500 kHz cr=0x04 preamble=8 power=10 dBm
+# chip firmware major=0x01 minor=0x18 (rc=0)
+# press g to run the sequence, or wait 5 s for it to start
+# --- sequence start ---
+# P1 cr=0x04 x10 rc=0  (baseline at the configured rate)
+TX P1 F01 CR04   rc=0
+TX P1 F02 CR04   rc=0
+TX P1 F03 CR04   rc=0
+TX P1 F04 CR04   rc=0
+TX P1 F05 CR04   rc=0
+TX P1 F06 CR04   rc=0
+TX P1 F07 CR04   rc=0
+TX P1 F08 CR04   rc=0
+TX P1 F09 CR04   rc=0
+TX P1 F10 CR04   rc=0
+# B1 cr=0x09 x1 rc=0  (one 0x09 frame: correct 0x09, accumulating 0x0D)
+TX B1 F01 CR09   rc=0
+# B2 cr=0x04 x10 rc=0  (back to configured: correct 0x04, accumulating 0x0D)
+TX B2 F01 CR04   rc=0
+TX B2 F02 CR04   rc=0
+TX B2 F03 CR04   rc=0
+TX B2 F04 CR04   rc=0
+TX B2 F05 CR04   rc=0
+TX B2 F06 CR04   rc=0
+TX B2 F07 CR04   rc=0
+TX B2 F08 CR04   rc=0
+TX B2 F09 CR04   rc=0
+TX B2 F10 CR04   rc=0
+# --- sequence done; press g to run it again ---

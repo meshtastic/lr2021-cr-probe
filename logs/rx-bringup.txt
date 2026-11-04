@@ -1,0 +1,9 @@
+FATAL begin rc=-1300
+
+# LR2021 CR probe, role=RX
+# freq=868100 kHz SF7 BW500 kHz cr=0x04 preamble=8 power=10 dBm
+FATAL begin rc=-1300
+FATAL begin rc=-1300
+FATAL begin rc=-1300
+FATAL begin rc=-1300
+FATAL begin rc=-1300

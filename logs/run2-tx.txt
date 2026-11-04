@@ -1,0 +1,33 @@
+jjHø# P1 cr=0x04 x10 rc=0  (baseline at the configured rate)
+TX P1 F01 CR04   rc=0
+TX P1 F02 CR04   rc=0
+TX P1 F03 CR04   rc=0
+TX P1 F04 CR04   rc=0
+TX P1 F05 CR04   rc=0
+TX P1 F06 CR04   rc=0
+TX P1 F07 CR04   rc=0
+TX P1 F08 CR04   rc=0
+TX P1 F09 CR04   rc=0
+TX P1 F10 CR04   rc=0
+# P2 cr=0x01 x1 rc=0  (one off-rate frame)
+TX P2 F01 CR01   rc=0
+# P3 cr=0x04 x10 rc=0  (back to configured: correct 0x04, accumulating 0x05)
+TX P3 F01 CR04   rc=0
+TX P3 F02 CR04   rc=0
+TX P3 F03 CR04   rc=0
+TX P3 F04 CR04   rc=0
+TX P3 F05 CR04   rc=0
+TX P3 F06 CR04   rc=0
+TX P3 F07 CR04   rc=0
+TX P3 F08 CR04   rc=0
+TX P3 F09 CR04   rc=0
+TX P3 F10 CR04   rc=0
+# P4 cr=0x02 x1 rc=0  (a second off-rate frame)
+TX P4 F01 CR02   rc=0
+# P5 cr=0x04 x5 rc=0  (back again: correct 0x04, accumulating 0x07)
+TX P5 F01 CR04   rc=0
+TX P5 F02 CR04   rc=0
+TX P5 F03 CR04   rc=0
+TX P5 F04 CR04   rc=0
+TX P5 F05 CR04   rc=0
+# --- sequence done; press g to run it again ---
