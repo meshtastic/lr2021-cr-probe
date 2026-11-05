@@ -114,11 +114,13 @@
 #define LR2021_PA_RAMP_48US 0x05
 #define LR2021_RX_TIMEOUT_INF 0xFFFFFFUL
 
-/* IRQ bits, datasheet section 5.7 */
+/* IRQ bits, datasheet section 5.7. Bit 17 is CMD_ERROR and bit 20 is CAD_DONE, not TX_DONE and
+ * TIMEOUT: every RX line in the RadioLib probe's logs carries bit 17 alongside RX_DONE. */
 #define LR2021_IRQ_LORA_HDR_CRC_ERROR (1UL << 9)
-#define LR2021_IRQ_TX_DONE (1UL << 17)
+#define LR2021_IRQ_CMD_ERROR (1UL << 17)
 #define LR2021_IRQ_RX_DONE (1UL << 18)
-#define LR2021_IRQ_TIMEOUT (1UL << 20)
+#define LR2021_IRQ_TX_DONE (1UL << 19)
+#define LR2021_IRQ_TIMEOUT (1UL << 21)
 #define LR2021_IRQ_CRC_ERROR (1UL << 22)
 #define LR2021_IRQ_ALL 0xFFFFFFFFUL
 

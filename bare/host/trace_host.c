@@ -150,7 +150,7 @@ int main(void)
 
     printf("\n==== TX: first two frames of phase 1, traced ====\n");
     lr2021_probe_set_trace(true);
-    stub_irq = (1UL << 17); /* TX_DONE */
+    stub_irq = (1UL << 19); /* TX_DONE */
     rc = lr2021_probe_tx_sequence();
     printf("tx_sequence rc=%d\n", rc);
 

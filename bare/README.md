@@ -51,8 +51,22 @@ EVK wiring (NSS D3, BUSY D1, NRESET D2, SCK/MISO/MOSI D8/D9/D10), taken from the
 RadioLib probe runs on.
 
 **This Zephyr application has never been compiled.** There is no nRF Connect SDK in the
-environment it was written in. The portable core has been compiled and run (below); `src/main.c`,
-the overlay and the CMake glue have not.
+environment it was written in. `src/main.c`, the overlay and the CMake glue are untested.
+
+The portable core has run on hardware. On 2026-11-05, `src/lr2021_probe.c` ran unmodified on both
+EVKs through a temporary Arduino HAL: the same six functions, with the same RX and TX loops as
+`src/main.c`. It reproduced the RadioLib probe's result line for line:
+
+| phases | reported `cr` |
+| --- | --- |
+| P1 | `0x04` ×10 |
+| P2 and P3 | `0x05` ×11 |
+| P4 and P5 | `0x07` ×6 |
+| the transmitter's second sequence, after a reset of its own chip but not the receiver's | `0x07` throughout |
+
+The `0x8003C4` nibble tracked the reported value on every frame. That run also corrected the core's
+TX_DONE and TIMEOUT IRQ bits, which were bits 17 and 20 in the first draft. Those are CMD_ERROR and
+CAD_DONE.
 
 Unlike the RadioLib probe, this port reads no console keys: it only prints. The receiver prints a
 summary line every `PROBE_SUMMARY_EVERY` receptions, and the register-write experiment the
