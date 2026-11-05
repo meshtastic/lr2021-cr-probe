@@ -5,8 +5,9 @@ LR2021 host command is built here, byte for byte, out of the datasheet. It exist
 Semtech asked to compile and run the test in their own environment and compare the two driver
 implementations, which needs a program where the whole stack is on the page.
 
-It runs the same five phases, logs the same columns and reaches the same question. The RadioLib
-version at the root is the one with hardware results; this one is for byte-level comparison.
+It runs the same five phases, logs the same columns and asks the same question. Built with
+Zephyr, it reproduced the RadioLib probe's hardware result line for line (see
+[Results](#results)), so the two implementations can be compared byte for byte.
 
 ## Layout
 
