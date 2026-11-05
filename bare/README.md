@@ -38,24 +38,72 @@ Reset is NRESET low for 10 ms, high, then 300 ms and a wait for BUSY low.
 
 ## Build and run on hardware
 
-Zephyr, with the nRF Connect SDK for the nRF54L15:
+This is the route that was tested on 2026-11-05, on Fedora with upstream Zephyr v4.4.0 (the
+version `usp_zephyr` pins) and Zephyr SDK 1.0.1. Upstream Zephyr carries the XIAO nRF54L15 board,
+so the nRF Connect SDK is not needed.
+
+### 1. A Zephyr workspace (once)
 
 ```sh
-west build -b xiao_nrf54l15/nrf54l15/cpuapp bare -p                      # RX
-west build -b xiao_nrf54l15/nrf54l15/cpuapp bare -p -- -DROLE=TX         # TX
-west flash
+python3 -m venv ~/zephyrproject/.venv
+. ~/zephyrproject/.venv/bin/activate
+pip install west
+west init -m https://github.com/zephyrproject-rtos/zephyr --mr v4.4.0 ~/zephyrproject
+cd ~/zephyrproject
+west config manifest.project-filter -- '-.*,+cmsis,+cmsis_6,+hal_nordic'   # optional: only what this needs
+west update --narrow -o=--depth=1
+west zephyr-export
+pip install -r zephyr/scripts/requirements-base.txt
+cd zephyr && west sdk install -t arm-zephyr-eabi
 ```
 
-The overlay in `boards/` is picked up automatically for that board target. It carries the real
-EVK wiring (NSS D3, BUSY D1, NRESET D2, SCK/MISO/MOSI D8/D9/D10), taken from the variant the
-RadioLib probe runs on.
+The project filter skips every module this application does not use. Without it, `west update`
+fetches the full module set, which also works.
 
-**This Zephyr application has never been compiled.** There is no nRF Connect SDK in the
-environment it was written in. `src/main.c`, the overlay and the CMake glue are untested.
+`west sdk install` asks the GitHub API which SDK to fetch. If it fails with HTTP 403 "API rate
+limit exceeded", add `--personal-access-token <token>`, for example
+`--personal-access-token "$(gh auth token)"`.
 
-The portable core has run on hardware. On 2026-11-05, `src/lr2021_probe.c` ran unmodified on both
-EVKs through a temporary Arduino HAL: the same six functions, with the same RX and TX loops as
-`src/main.c`. It reproduced the RadioLib probe's result line for line:
+### 2. Build
+
+Run this from the root of this repository, in a shell with the workspace's venv active:
+
+```sh
+. ~/zephyrproject/.venv/bin/activate
+export ZEPHYR_BASE=~/zephyrproject/zephyr
+west build -b xiao_nrf54l15/nrf54l15/cpuapp bare -p -d build-rx                  # RX
+west build -b xiao_nrf54l15/nrf54l15/cpuapp bare -p -d build-tx -- -DROLE=TX     # TX
+```
+
+The overlay in `boards/` is picked up automatically for that board target, and both builds finish
+with no warnings. The overlay carries the real EVK wiring: NSS D3, BUSY D1, NRESET D2 and
+SCK/MISO/MOSI D8/D9/D10, taken from the variant the RadioLib probe runs on.
+
+### 3. Flash
+
+Flash over the XIAO's on-board CMSIS-DAP probe with [pyocd](https://pyocd.io). Use `pyocd list`
+to find each kit's unique ID:
+
+```sh
+pyocd load --target nrf54l --erase sector --uid <RX probe> build-rx/zephyr/zephyr.hex
+pyocd load --target nrf54l --erase sector --uid <TX probe> build-tx/zephyr/zephyr.hex
+```
+
+For this board, `west flash` defaults to OpenOCD, which was not tried on this bench.
+
+### 4. Watch
+
+The console is the XIAO's USB serial port at 115200 baud. On Linux it is
+`/dev/serial/by-id/*XIAO_nrf54*<probe>-if02`.
+
+- **RX:** prints its init trace, then one line per reception.
+- **TX:** runs the sequence three seconds after boot. It then idles for 30 s, resets its own chip
+  and runs the sequence again, indefinitely.
+
+### Results
+
+On 2026-11-05 the Zephyr build of both roles reproduced the RadioLib probe's result line for line.
+The raw serial logs are in [`logs/`](logs/):
 
 | phases | reported `cr` |
 | --- | --- |
@@ -64,9 +112,13 @@ EVKs through a temporary Arduino HAL: the same six functions, with the same RX a
 | P4 and P5 | `0x07` ×6 |
 | the transmitter's second sequence, after a reset of its own chip but not the receiver's | `0x07` throughout |
 
-The `0x8003C4` nibble tracked the reported value on every frame. That run also corrected the core's
-TX_DONE and TIMEOUT IRQ bits, which were bits 17 and 20 in the first draft. Those are CMD_ERROR and
-CAD_DONE.
+- **Register:** the `0x8003C4` nibble tracked the reported value on every frame.
+- **First log line:** the first line of `logs/zephyr-run1-rx.txt` predates the receiver's reset.
+  It came from an earlier image still transmitting on the other kit.
+- **Bug fixed along the way:** the core's TX_DONE and TIMEOUT IRQ bits were bits 17 and 20 in the
+  first draft. Those are CMD_ERROR and CAD_DONE.
+- **Same result through Arduino:** before the Zephyr toolchain was available, the same core also ran
+  unmodified through a temporary Arduino HAL, with the same result.
 
 Unlike the RadioLib probe, this port reads no console keys: it only prints. The receiver prints a
 summary line every `PROBE_SUMMARY_EVERY` receptions, and the register-write experiment the
@@ -115,5 +167,7 @@ Four places worth comparing, found while writing it:
 3. **TCXO.** The firmware that produced the field observations drives a TCXO with a 1 s startup;
    this EVK has none, and the probe issues no `SetTcxoMode` by default.
 4. **Codes `0x08` and `0x09` are unreachable from RadioLib's public API.** `setCodingRate` reaches
-   `0x01`-`0x07` only. The probe writes the raw modulation-params byte, so it can transmit `0x09`
-   - which is how the out-of-Table-9-4 values `0x0D` and `0x0F` were reproduced on the bench.
+   `0x01`-`0x07` only. This core writes the raw modulation-params byte, so adding a `0x09` row to
+   `PHASES` is all it takes to transmit one. The out-of-Table-9-4 values `0x0D` and `0x0F` were
+   reproduced on the bench with the RadioLib probe's `tx_xiao_bit3` build, which writes the same
+   raw byte.

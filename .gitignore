@@ -1,3 +1,5 @@
 .pio/
 .vscode/
 bare/host/trace.txt
+build/
+build-*/

@@ -1,0 +1,59 @@
+# LR2021 bare-metal CR probe, role=RX
+# freq=915000000 Hz SF7 bw_code=0x06 cr=0x04 power=10 dBm dcdc_workaround=1
+SPI W 0101 : 
+SPI R 0101 : 01 18 
+# chip firmware major=0x01 minor=0x18
+SPI W 0128 : 00 
+SPI W 0206 : 01 
+SPI W 0116 : FF FF FF FF 
+SPI W 0112 : 08 11 
+SPI W 0122 : 6F 
+SPI W 0207 : 00 
+SPI W 0123 : 00 E5 00 00 00 00 
+SPI W 0200 : 36 89 CA C0 
+SPI W 0220 : 76 40 
+SPI W 0106 : F4 02 00 01 
+SPI R 0106 : 00 00 24 82 
+SPI W 0105 : F2 00 24 00 F0 00 00 00 F0 00 00 
+SPI W 0105 : F2 00 24 00 0F 00 00 00 0F 00 00 
+SPI W 0104 : 80 00 4C 00 2C CC CC 
+# dcdc workaround applied, ana_dec=4
+SPI W 0200 : 36 89 CA C0 
+SPI W 0223 : 12 
+SPI W 0221 : 00 08 FF 02 
+SPI W 020A : 
+SPI W 0115 : 08 00 64 02 00 
+SPI W 0116 : FF FF FF FF 
+SPI W 020C : FF FF FF 
+# init complete
+#    n reported configured crc rssi_dbm snr_q reg_8003C4 irq      payload
+*** Booting Zephyr OS build v4.4.0 ***
+# LR2021 bare-metal CR probe, role=RX
+# freq=915000000 Hz SF7 bw_code=0x06 cr=0x04 power=10 dBm dcdc_workaround=1
+SPI W 0101 : 
+SPI R 0101 : 01 18 
+# chip firmware major=0x01 minor=0x18
+SPI W 0128 : 00 
+SPI W 0206 : 01 
+SPI W 0116 : FF FF FF FF 
+SPI W 0112 : 08 11 
+SPI W 0122 : 6F 
+SPI W 0207 : 00 
+SPI W 0123 : 00 E5 00 00 00 00 
+SPI W 0200 : 36 89 CA C0 
+SPI W 0220 : 76 40 
+SPI W 0106 : F4 02 00 01 
+SPI R 0106 : 00 00 24 82 
+SPI W 0105 : F2 00 24 00 F0 00 00 00 F0 00 00 
+SPI W 0105 : F2 00 24 00 0F 00 00 00 0F 00 00 
+SPI W 0104 : 80 00 4C 00 2C CC CC 
+# dcdc workaround applied, ana_dec=4
+SPI W 0200 : 36 89 CA C0 
+SPI W 0223 : 12 
+SPI W 0221 : 00 08 FF 02 
+SPI W 020A : 
+SPI W 0115 : 08 00 64 02 00 
+SPI W 0116 : FF FF FF FF 
+SPI W 020C : FF FF FF 
+# init complete
+#    n reported configured crc rssi_dbm snr_q reg_8003C4 irq      payload

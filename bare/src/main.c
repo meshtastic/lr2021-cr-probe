@@ -49,7 +49,7 @@ static const struct spi_config spi_cfg = {
     .frequency = PROBE_SPI_HZ,
     .operation = SPI_OP_MODE_MASTER | SPI_WORD_SET(8) | SPI_TRANSFER_MSB,
     .slave = 0,
-    .cs = {0},
+    /* .cs left zeroed: no controller-managed chip select, NSS is driven by hal_spi_xfer() */
 };
 
 static void hal_spi_xfer(const uint8_t *tx, uint8_t *rx, size_t len)
