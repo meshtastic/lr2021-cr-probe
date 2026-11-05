@@ -6,9 +6,18 @@ the rate of the frame just received, or the bitwise OR of every header's rate si
 
 On two LR2021 LoRa Plus EVKs (chip ROM 1.24) it reports the **OR**. The raw logs are in [`logs/`](logs/).
 
-The probe uses RadioLib only, with no Meshtastic stack, scheduler or concurrency. Background, and
-the firmware mitigation that shipped, are in
+Background, and the firmware mitigation that shipped, are in
 [meshtastic/firmware#12183](https://github.com/meshtastic/firmware/pull/12183).
+
+There are two implementations of the same experiment, and both have reproduced the result on
+hardware.
+
+- **This one, at the repository root,** uses RadioLib only, with no Meshtastic stack, scheduler or
+  concurrency.
+- **[`bare/`](bare/)** is the same test with no driver at all. Every host command is built from
+  the datasheet behind a six-function HAL, with a Zephyr port and a workstation harness that runs
+  the core against a stub chip. It exists for comparing our command stream against another LR2021
+  driver byte for byte.
 
 ## Why this experiment
 
