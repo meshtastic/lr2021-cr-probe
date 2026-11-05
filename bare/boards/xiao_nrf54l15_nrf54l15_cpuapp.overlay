@@ -1,0 +1,68 @@
+/*
+ * Pin map for the bare-metal probe on the Semtech LR2021 LoRa Plus EVK: a Seeed XIAO nRF54L15
+ * carrying a Wio-LR2021 on the LoRa Plus expansion board.
+ *
+ * The wiring matches the RadioLib probe at the root of this repository and meshtastic/firmware's
+ * xiao_nrf54l15_lr2021 variant, translated from Arduino header pins to nRF54L15 ports:
+ *
+ *   signal   XIAO pin   nRF54L15
+ *   NSS      D3         P1.07
+ *   BUSY     D1         P1.05
+ *   NRESET   D2         P1.06
+ *   SCK      D8         P2.01
+ *   MISO     D9         P2.04
+ *   MOSI     D10        P2.02
+ *
+ * DIO8 is wired to D0 (P1.04). The probe never uses it: it reads the IRQ status out of the status
+ * bytes that start every SPI frame, which is also what RadioLib's getIrqStatus() does.
+ *
+ * The pinctrl groups below are spelled out rather than inherited from the board, so the file is
+ * self-contained and independent of which SPI pins a given Zephyr board revision defaults to.
+ *
+ * west picks this file up automatically for -b xiao_nrf54l15/nrf54l15/cpuapp. For another board
+ * target, copy it to boards/<target with / replaced by _>.overlay or pass it explicitly with
+ * -DEXTRA_DTC_OVERLAY_FILE=boards/xiao_nrf54l15_nrf54l15_cpuapp.overlay.
+ *
+ * A wiring error cannot be mistaken for a radio result: GetVersion returns something other than
+ * 0x01 0x18, or BUSY stays high, and the probe reports it and refuses to go on.
+ */
+
+/ {
+	zephyr,user {
+		spi-bus = <&spi00>;
+		/* NSS: asserted by the application, one assert per command frame */
+		cs-gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
+		/* BUSY: high while the chip is processing a command */
+		busy-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+		/* NRESET */
+		reset-gpios = <&gpio1 6 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&pinctrl {
+	spi00_probe_default: spi00_probe_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 2, 1)>,
+				<NRF_PSEL(SPIM_MOSI, 2, 2)>,
+				<NRF_PSEL(SPIM_MISO, 2, 4)>;
+		};
+	};
+
+	spi00_probe_sleep: spi00_probe_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 2, 1)>,
+				<NRF_PSEL(SPIM_MOSI, 2, 2)>,
+				<NRF_PSEL(SPIM_MISO, 2, 4)>;
+			low-power-enable;
+		};
+	};
+};
+
+&spi00 {
+	status = "okay";
+	pinctrl-0 = <&spi00_probe_default>;
+	pinctrl-1 = <&spi00_probe_sleep>;
+	pinctrl-names = "default", "sleep";
+	/* NSS is a plain GPIO driven by the application, not a controller cs-gpios entry, so that one
+	 * assert spans a whole command frame. */
+};
